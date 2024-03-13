@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Drive List</title>
+        <style>
+            div.ex2 {max-width: 900px; margin: auto;}
+        </style>
+    </head>
+    <script>
+        function ScanForDrives()
+        {
+            window.location.href = "/scanfordrives"
+        }
+    </script>
+    <body>
+        <div class="ex2">
+            <header>
+                <h1 itemprop="name">Drive List</h1>
+            </header>
+            <button type="button" onclick="ScanForDrives()">Scan for Drives</button>
+            <br>
+            <div>                        
+                {% for drive in listOfDrives %}
+                    <p><a href="/{{drive}}">{{drive}}</a>&nbsp;&nbsp;&nbsp;<a href="/eject/{{drive}}">Eject</a></p>
+                {% endfor %}
+            </div>
+            <br>
+            <p><a href="/shutdown">Shutdown raspberry pi</a></p>
+        </div>
+    </body>
+</html>
