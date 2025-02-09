@@ -1,4 +1,4 @@
-import flask
+from flask import Flask, redirect, send_from_directory, request, flash, get_flashed_messages
 import os
 import jinja2
 import time
@@ -6,13 +6,16 @@ import subprocess
 
 import Utilities
 
-app = flask.Flask(__name__)
+app = Flask(__name__)
+app.config['SECRET_KEY'] = os.urandom(12).hex()
+app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024 # max size for uploads, 100MB
 
 ###############################################################################
 
 env = jinja2.Environment(loader=jinja2.FileSystemLoader("./"))
 driveListTemplate = env.get_template("template_drivelist.html")
 fileListTemplate = env.get_template("template_fileList.html")
+uploadErrorTemplate = env.get_template("template_uploadError.html")
 
 ###############################################################################
 
@@ -33,11 +36,23 @@ def drivelist():
 @app.route("/scanfordrives")
 def scanForDrives():
     Utilities.scanForDrives()
-    return flask.redirect("/drivelist")
+    return redirect("/drivelist")
 
 ###############################################################################
 
-@app.route("/<path:remotepath>")
+def allowedFile(filename):
+    if ("." not in filename):
+        return False
+
+    extension = filename.rsplit(".", 1)[1].lower()
+    if (extension in ["mp3", "pdf"]):
+        return True
+    else:
+        return False
+
+###############################################################################
+
+@app.route("/<path:remotepath>", methods=["GET"])
 def handleLocalpath(remotepath):
     if (".." in remotepath):
         return "", 404
@@ -65,7 +80,70 @@ def handleLocalpath(remotepath):
         # TODO: need to handle files with # in the name, currently the workaround is to remove it from the filename on the USB drive itself.
         # Another way is to modify the filename when creating the link: str.replace("#", "&#35;") 
         # then when the link is clicked and the filename is determined use str.replace("&#35;", "#") then send the file to the client
-        return flask.send_from_directory(os.path.join(Utilities.MEDIA_PATH, folder), file) # as_attachment=True
+        return send_from_directory(os.path.join(Utilities.MEDIA_PATH, folder), file) # as_attachment=True
+
+###############################################################################
+
+def allowedFile(filename):
+    # Returns error string on error. Returns empty string for no error.
+    if ("." not in filename):
+        return "Missing ."
+
+    if (".." in filename):
+        return ".. not allowed"
+
+    extension = filename.rsplit(".", 1)[1].lower()
+    if (extension in ["mp3", "pdf"]):
+        return "" # no error
+    else:
+        return "Only .mp3 and .pdf files allowed"
+
+###############################################################################
+
+@app.route("/<path:remotepath>", methods=["POST"])
+def uploadFile(remotepath):
+    if (".." in remotepath):
+        return "", 404
+
+    # TODO: add password protection for file uploads
+    
+    if ("file" not in request.files):
+        flash("No file found")
+        return redirect("/error")
+    
+    file = request.files["file"]
+    # If the user does not select a file, the browser submits an empty file without a filename.
+    if (file.filename == ""):
+        flash("No selected file")
+        return redirect("/error")
+
+    errorMsg = allowedFile(file.filename)
+    if (errorMsg == ""):
+        # no problem detected so far, proceed
+        fullLocalPath = os.path.join(Utilities.MEDIA_PATH, remotepath)
+        fullLocalPath = os.path.join(fullLocalPath, file.filename)
+
+        if (os.path.exists(fullLocalPath)):
+            flash("File already exists")
+            return redirect("/error")
+        
+        try:
+            file.save(fullLocalPath)
+        except:
+            flash("Could not save file")
+            return redirect("/error")
+        return redirect(request.url)
+    else:
+        flash(errorMsg)
+        return redirect("/error")
+
+###############################################################################
+
+@app.route("/error")
+def uploadError():
+    msgList = get_flashed_messages() # just a list of strings
+    html = uploadErrorTemplate.render(msgList=msgList)
+    return html
 
 ###############################################################################
 
@@ -77,7 +155,7 @@ def ejectDrive(drive):
     Utilities.unmountDrive(drive)
     
     # redirect to main page
-    return flask.redirect("/drivelist")
+    return redirect("/drivelist")
 
 ###############################################################################
 

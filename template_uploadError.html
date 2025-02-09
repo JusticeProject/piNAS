@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Error</title>
+        <style>
+            div.ex2 {max-width: 900px; margin: auto;}
+        </style>
+    </head>
+    <body>
+        <div class="ex2">
+            <header>
+                {% for msg in msgList %}
+                    <h1 itemprop="name">Error: {{msg}}</h1>
+                {% endfor %}
+            </header>
+            <br>
+            <p><a href="/drivelist">Drive List</a>&nbsp;&nbsp;&nbsp;<a href="javascript:history.back()">Go Back</a></p>
+        </div>
+    </body>
+</html>
