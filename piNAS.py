@@ -40,18 +40,6 @@ def scanForDrives():
 
 ###############################################################################
 
-def allowedFile(filename):
-    if ("." not in filename):
-        return False
-
-    extension = filename.rsplit(".", 1)[1].lower()
-    if (extension in ["mp3", "pdf"]):
-        return True
-    else:
-        return False
-
-###############################################################################
-
 @app.route("/<path:remotepath>", methods=["GET"])
 def handleLocalpath(remotepath):
     if (".." in remotepath):
