@@ -2,6 +2,5 @@
 # then add this line at the bottom: @reboot /home/pi/piNAS/run.sh &
 
 cd /home/pi/piNAS
-source ../pythonenv/bin/activate
-python waitUntilNetworkReady.py
-waitress-serve --port=6512 'piNAS:app' &
+../pythonenv/bin/python waitUntilNetworkReady.py
+../pythonenv/bin/waitress-serve --port=6512 'piNAS:app' &
