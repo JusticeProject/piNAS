@@ -10,7 +10,7 @@ sudo ufw default allow outgoing
 sudo ufw allow ssh
 sudo ufw limit ssh/tcp
 sudo ufw enable
-sudo ufw allow 6514/tcp
+sudo ufw allow 6512/tcp
 sudo ufw logging off
 sudo ufw status verbose
 ```
