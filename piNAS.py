@@ -2,7 +2,6 @@ from flask import Flask, redirect, send_from_directory, request, flash, get_flas
 import os
 import jinja2
 import time
-import subprocess
 
 import Utilities
 
@@ -156,25 +155,6 @@ def shutdown():
 
 ###############################################################################
 
-def getIPAddrs():
-    result = subprocess.run("hostname -I", shell=True, capture_output=True)
-    output = result.stdout.decode() + result.stderr.decode()
-    addrs = output.split()
-    return addrs
-
-###############################################################################
-
-def waitUntilNetworkReady():
-    while (True):
-        addrs = getIPAddrs()
-        for addr in addrs:
-            if (addr.count(".") == 3) and (addr != "127.0.0.1"):
-                return
-        time.sleep(0.5)
-
-###############################################################################
-
 if __name__ == "__main__":
-    waitUntilNetworkReady()
     app.run("0.0.0.0", 6512)
     
