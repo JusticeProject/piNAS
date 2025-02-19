@@ -113,7 +113,8 @@ def mountDev(fullDevPath):
     fullMediaPath = os.path.join(MEDIA_PATH, friendlyName)
     
     if (os.path.exists(fullMediaPath) == False):
-        result = os.system("sudo mkdir " + fullMediaPath)
+        # create the folder and the necessary parent folders
+        result = os.system("sudo mkdir --parents " + fullMediaPath)
         if (result != 0):
             # could not create media folder, don't continue
             return
