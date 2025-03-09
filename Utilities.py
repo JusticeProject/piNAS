@@ -99,11 +99,9 @@ def getUserFriendlyName(fullDevPath):
             ID_VENDOR = line.split("=")[1]
         if ("ID_MODEL=" in line):
             ID_MODEL = line.split("=")[1]
-        
-    # if there is a number at the end of fullDevPath, grab that too, we may need to distinguish between sdb1 and sdb2
-    partitionNumber = dev[3:]
-    
-    return ID_VENDOR + "_" + ID_MODEL + partitionNumber
+
+	# example: SanDisk_Cruzer_sda1
+    return ID_VENDOR + "_" + ID_MODEL + "_" + dev
 
 ###############################################################################
 
@@ -144,6 +142,7 @@ def scanForDrives():
     
     for devPath in storageDevPaths:
         folder = getMountFolder(allMounts, devPath)
+		# if it's not mounted then mount it
         if (len(folder) == 0):
             mountDev(devPath)
     
