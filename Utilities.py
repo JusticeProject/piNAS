@@ -131,7 +131,8 @@ def getListOfDrives():
         for folder in folders:
             if (isFolderMounted(allMounts, os.path.join(MEDIA_PATH, folder))):
                 listofdrives.append(folder)
-        
+
+    listofdrives.sort()
     return listofdrives
 
 ###############################################################################
